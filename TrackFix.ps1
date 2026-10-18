@@ -203,13 +203,10 @@ if ($Fix) {
         Write-Host ('Ghosts detected (' + $ghosts.Count + ' not-present device(s)) - software replug of the root hub.')
         $hub = Get-OculusRootHub
         if ($hub) {
-            Write-Host ('Power-cycling: ' + $hub.FriendlyName)
-            Write-Host '  (all USB 3 devices on this controller will blink for a few seconds)'
-            Disable-PnpDevice -InstanceId $hub.InstanceId -Confirm:$false -ErrorAction Continue
-            Start-Sleep -Seconds 3
-            Enable-PnpDevice -InstanceId $hub.InstanceId -Confirm:$false -ErrorAction Continue
+            Write-Host ('Restarting (power-cycling): ' + $hub.FriendlyName)
+            Start-Process pnputil -ArgumentList '/restart-device', "`"$($hub.InstanceId)`"" -Wait -WindowStyle Hidden
             Start-Sleep -Seconds 5
-            Write-Host 'Root hub re-enabled - devices re-enumerating.'
+            Write-Host 'Root hub restarted - devices re-enumerating.'
         } else {
             Write-Host 'Could not resolve the USB root hub - physical replug required.' -ForegroundColor Red
         }
